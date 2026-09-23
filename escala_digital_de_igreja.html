@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Escala Digital - Igreja</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Font Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        emerald: {
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom scrollbar for tab navigation */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Print styles optimization */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-only {
+                display: block !important;
+            }
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 12pt;
+            }
+            .card-box {
+                border: 1px solid #ccc !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body class="h-full font-sans text-slate-800 flex flex-col bg-slate-100">
+
+    <!-- Top Bar / Navigation Header -->
+    <header class="bg-gradient-to-r from-slate-900 via-navy-900 to-slate-900 text-white shadow-lg sticky top-0 z-30 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white font-bold text-xl shadow-md">
+                        <i class="fa-solid fa-church"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight tracking-wide">ESCALA DIGITAL</h1>
+                        <p class="text-xs text-emerald-400 font-medium">Outubro de 2026 • Gestão Ministerial</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center space-x-2">
+                    <button onclick="restoreDefaultData()" title="Restaurar Escala Padrão de Outubro/2026" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-rotate-left text-amber-400"></i>
+                        <span class="hidden md:inline">Restaurar Outubro/26</span>
+                    </button>
+                    
+                    <button onclick="exportBackupJSON()" title="Exportar Backup em JSON" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-download text-emerald-400"></i>
+                        <span class="hidden md:inline">Exportar JSON</span>
+                    </button>
+
+                    <label class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition cursor-pointer flex items-center gap-1.5">
+                        <i class="fa-solid fa-upload text-blue-400"></i>
+                        <span class="hidden md:inline">Importar JSON</span>
+                        <input type="file" id="importJsonInput" accept=".json" onchange="importBackupJSON(event)" class="hidden">
+                    </label>
+
+                    <button onclick="window.print()" title="Imprimir Mural da Igreja" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-print"></i>
+                        <span class="hidden sm:inline">Imprimir</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Horizontal Scrollable Navigation Tabs -->
+        <div class="bg-slate-900/90 border-t border-slate-800">
+            <div class="max-w-7xl mx-auto px-2 sm:px-4">
+                <nav class="flex space-x-1 overflow-x-auto no-scrollbar py-2 text-xs sm:text-sm font-medium" id="mainTabNav">
+                    <button onclick="switchTab('dashboard')" id="tab-dashboard" class="tab-btn active text-white bg-emerald-600 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie"></i> Visão Geral
+                    </button>
+                    <button onclick="switchTab('sheet')" id="tab-sheet" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-table"></i> Planilha Oficial
+                    </button>
+                    <button onclick="switchTab('calendar')" id="tab-calendar" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days"></i> Calendário
+                    </button>
+                    <button onclick="switchTab('dept-sermao')" id="tab-dept-sermao" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-book-bible"></i> Sermão do Dia
+                    </button>
+                    <button onclick="switchTab('dept-es')" id="tab-dept-es" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-graduation-cap"></i> Escola Sabatina
+                    </button>
+                    <button onclick="switchTab('dept-sonoplastia')" id="tab-dept-sonoplastia" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-sliders"></i> Sonoplastia & Live
+                    </button>
+                    <button onclick="switchTab('dept-diaconos')" id="tab-dept-diaconos" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield"></i> Diáconos & Diaconisas
+                    </button>
+                    <button onclick="switchTab('dept-recepcao')" id="tab-dept-recepcao" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-handshake"></i> Recepção
+                    </button>
+                    <button onclick="switchTab('dept-musica')" id="tab-dept-musica" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-music"></i> Música & Infantil
+                    </button>
+                    <button onclick="switchTab('dept-anciao')" id="tab-dept-anciao" class="tab-btn text-slate-300 hover:text-white hover:bg-slate-800 px-3.5 py-2 rounded-lg whitespace-nowrap transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-tie"></i> Ancião do Mês
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Church Official Header Banner (Visible in Print & Matrix Top) -->
+    <div class="bg-slate-900 text-white py-4 px-6 border-b border-slate-800 shadow-inner">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
+            <div>
+                <div class="text-xs uppercase font-extrabold text-emerald-400 tracking-wider">Mês Oficial de Atividades</div>
+                <h2 class="text-2xl font-black tracking-tight" id="headerMonthTitle">Mês: OUTUBRO DE 2026</h2>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-3 text-xs sm:text-sm">
+                <div class="bg-slate-800 px-3.5 py-1.5 rounded-lg border border-slate-700">
+                    <span class="text-slate-400">Ancião do Mês:</span> 
+                    <span class="font-bold text-emerald-400 ml-1" id="headerAnciaoName">LUIZINHO</span>
+                </div>
+                <div class="bg-slate-800 px-3.5 py-1.5 rounded-lg border border-slate-700">
+                    <span class="text-slate-400">Comunicação:</span> 
+                    <span class="font-semibold text-slate-200 ml-1" id="headerComunicacaoName">Equipe Mídia & Som</span>
+                </div>
+                <button onclick="openEditAnciaoModal()" class="no-print text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 px-2.5 py-1.5 rounded-lg border border-slate-600 transition">
+                    <i class="fa-solid fa-pen-to-square"></i> Editar Liderança
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- ================= SECTION 1: DASHBOARD / VISÃO GERAL ================= -->
+        <section id="view-dashboard" class="tab-content space-y-6">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total de Cultos</p>
+                        <h3 class="text-2xl font-black text-slate-800 mt-1" id="statTotalCultos">0</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Dias programados no mês</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-calendar-check"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Escalas Confirmadas</p>
+                        <h3 class="text-2xl font-black text-emerald-600 mt-1" id="statConfirmadas">0</h3>
+                        <p class="text-xs text-emerald-600 font-medium mt-0.5" id="statConfirmadasPercent">0% do total</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Escalas Pendentes</p>
+                        <h3 class="text-2xl font-black text-amber-500 mt-1" id="statPendentes">0</h3>
+                        <p class="text-xs text-amber-600 font-medium mt-0.5">Aguardando confirmação</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Ancião Responsável</p>
+                        <h3 class="text-lg font-bold text-slate-800 mt-1 truncate max-w-[140px]" id="dashAnciaoName">LUIZINHO</h3>
+                        <p class="text-xs text-slate-400 mt-0.5">Outubro/2026</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Roster Spotlight Card & Quick List -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Highlighted Next Service -->
+                <div class="lg:col-span-1 bg-gradient-to-br from-slate-900 to-navy-900 rounded-2xl shadow-xl p-6 text-white flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-6 -bottom-6 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-full text-xs font-bold uppercase tracking-wide">
+                                <i class="fa-solid fa-star mr-1"></i> Próximo Culto
+                            </span>
+                            <span class="text-xs text-slate-400" id="dashNextDateFull">03/10/2026</span>
+                        </div>
+                        <h3 class="text-2xl font-black text-white mb-1" id="dashNextDayTitle">Sábado - Culto Divino</h3>
+                        <p class="text-sm text-emerald-400 font-medium mb-6" id="dashNextDateText">03 de Outubro de 2026</p>
+
+                        <div class="space-y-3 text-sm text-slate-200 bg-slate-800/60 p-4 rounded-xl border border-slate-700/50 mb-6" id="dashNextDetails">
+                            <!-- Populated via JS -->
+                        </div>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button id="dashNextEditBtn" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 px-4 rounded-xl shadow transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-pen-to-square"></i> Editar Escala
+                        </button>
+                        <button id="dashNextShareBtn" class="bg-emerald-800 hover:bg-emerald-700 text-emerald-100 text-xs font-bold py-2.5 px-3 rounded-xl transition flex items-center justify-center gap-1.5" title="Enviar no WhatsApp">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upcoming Services Roster Summary List -->
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-emerald-600"></i> Cronograma de Outubro 2026
+                            </h3>
+                            <span class="text-xs text-slate-500">Cultos Permitidos: Qua, Sáb, Dom</span>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs sm:text-sm">
+                                <thead class="bg-slate-50 text-slate-500 uppercase font-bold text-[11px] border-b border-slate-200">
+                                    <tr>
+                                        <th class="py-2.5 px-3">Data / Dia</th>
+                                        <th class="py-2.5 px-3">Pregador / Sermão</th>
+                                        <th class="py-2.5 px-3 hidden sm:table-cell">Diáconos / Diaconisas</th>
+                                        <th class="py-2.5 px-3 text-center">Status</th>
+                                        <th class="py-2.5 px-3 text-right">Ação</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100" id="dashSummaryTableBody">
+                                    <!-- Populated via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 2: PLANILHA OFICIAL (MATRIZ EXCEL) ================= -->
+        <section id="view-sheet" class="tab-content hidden space-y-4">
+            <!-- Sheet Toolbar -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4 no-print">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                        <i class="fa-file-excel"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800">Matriz Mensal Estilo Planilha Excel</h3>
+                        <p class="text-xs text-slate-500">Organização oficial em blocos semanais (Domingo, Quarta, Sábado ES e Culto)</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="exportToCSV()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2 px-4 rounded-lg shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-file-csv"></i> Exportar Planilha CSV
+                    </button>
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold py-2 px-4 rounded-lg shadow transition flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> Imprimir Matriz
+                    </button>
+                </div>
+            </div>
+
+            <!-- Official Roster Excel Table -->
+            <div class="bg-white rounded-xl shadow-md border border-slate-300 overflow-hidden card-box">
+                <!-- Header Banner on Matrix -->
+                <div class="bg-emerald-700 text-white text-center py-3 px-4 font-bold uppercase tracking-wider text-sm border-b border-emerald-800">
+                    MATRIZ OFICIAL DE ESCALAS • OUTUBRO / 2026
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse text-xs sm:text-sm text-left">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-700 font-bold border-b border-slate-300">
+                                <th class="p-2.5 border-r border-slate-300 text-center bg-slate-200 w-32">Função / Ministério</th>
+                                <th class="p-2.5 border-r border-slate-300 text-center bg-amber-50 min-w-[140px]">
+                                    <div class="font-extrabold text-amber-900">DOMINGO</div>
+                                    <div class="text-[10px] font-normal text-amber-700">Culto Evangelístico</div>
+                                </th>
+                                <th class="p-2.5 border-r border-slate-300 text-center bg-blue-50 min-w-[140px]">
+                                    <div class="font-extrabold text-blue-900">QUARTA-FEIRA</div>
+                                    <div class="text-[10px] font-normal text-blue-700">Culto de Oração</div>
+                                </th>
+                                <th class="p-2.5 border-r border-slate-300 text-center bg-emerald-50 min-w-[140px]">
+                                    <div class="font-extrabold text-emerald-900">SÁBADO</div>
+                                    <div class="text-[10px] font-normal text-emerald-700">Escola Sabatina</div>
+                                </th>
+                                <th class="p-2.5 text-center bg-purple-50 min-w-[140px]">
+                                    <div class="font-extrabold text-purple-900">SÁBADO</div>
+                                    <div class="text-[10px] font-normal text-purple-700">Culto Divino</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="matrixTableBody" class="divide-y divide-slate-200">
+                            <!-- Populated dynamically week by week via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 3: CALENDÁRIO MENSUAL ================= -->
+        <section id="view-calendar" class="tab-content hidden space-y-4">
+            <!-- Calendar Header & Rules Note -->
+            <div class="bg-white rounded-xl p-4 shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-days text-emerald-600"></i> Calendário do Mês • Outubro 2026
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-1"></span>
+                        <strong>Dias Habilitados:</strong> Quarta-feira, Sábado e Domingo. Demais dias estão bloqueados para edição.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 text-xs">
+                    <span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded font-medium border border-emerald-200">Habilitado</span>
+                    <span class="px-2.5 py-1 bg-slate-100 text-slate-400 rounded font-medium border border-slate-200">Bloqueado</span>
+                </div>
+            </div>
+
+            <!-- Calendar Month Grid -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6">
+                <!-- Days of week headers -->
+                <div class="grid grid-cols-7 gap-1 sm:gap-2 mb-2 text-center text-xs font-bold text-slate-500 uppercase">
+                    <div class="py-2 text-emerald-700 bg-emerald-50/50 rounded">Dom</div>
+                    <div class="py-2">Seg</div>
+                    <div class="py-2">Ter</div>
+                    <div class="py-2 text-blue-700 bg-blue-50/50 rounded">Qua</div>
+                    <div class="py-2">Qui</div>
+                    <div class="py-2">Sex</div>
+                    <div class="py-2 text-purple-700 bg-purple-50/50 rounded">Sáb</div>
+                </div>
+
+                <!-- Days cells grid -->
+                <div class="grid grid-cols-7 gap-1 sm:gap-2" id="calendarDaysGrid">
+                    <!-- Populated via JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 4: SERMÃO DO DIA (PREGADORES) ================= -->
+        <section id="view-dept-sermao" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-book-bible"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Pregadores & Sermão do Dia</h3>
+                        <p class="text-xs text-slate-500">Escala completa de oradores para Quarta, Sábado e Domingo em Outubro/2026</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptSermaoCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 5: ESCOLA SABATINA ================= -->
+        <section id="view-dept-es" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Direção da Escola Sabatina</h3>
+                        <p class="text-xs text-slate-500">Dirigentes e programação dos sábados de manhã</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptEsCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 6: SONOPLASTIA & LIVE ================= -->
+        <section id="view-dept-sonoplastia" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Sonoplastia, Mídia & Transmissão Live</h3>
+                        <p class="text-xs text-slate-500">Equipe técnica de som, projeção e transmissão online</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptSonoplastiaCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 7: DIÁCONOS & DIACONISAS ================= -->
+        <section id="view-dept-diaconos" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Corpo de Diáconos & Diaconisas</h3>
+                        <p class="text-xs text-slate-500">Gestão dos serviços de recepção interna, recolhimento de ofertas e ordem do templo</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptDiaconosCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 8: RECEPÇÃO ================= -->
+        <section id="view-dept-recepcao" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-handshake"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Equipe de Recepção</h3>
+                        <p class="text-xs text-slate-500">Acolhimento aos membros e visitantes nas portas de entrada</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptRecepcaoCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 9: MÚSICA & ADORAÇÃO INFANTIL ================= -->
+        <section id="view-dept-musica" class="tab-content hidden space-y-4">
+            <div class="bg-white rounded-xl p-5 shadow-sm border border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-700 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-music"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-lg">Música & Adoração Infantil</h3>
+                        <p class="text-xs text-slate-500">Grupos de louvor, instrumental e momentos especiais com as crianças</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="deptMusicaCards">
+                <!-- Populated via JS -->
+            </div>
+        </section>
+
+
+        <!-- ================= SECTION 10: ANCIÃO DO MÊS ================= -->
+        <section id="view-dept-anciao" class="tab-content hidden space-y-6">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 max-w-2xl mx-auto">
+                <div class="text-center space-y-3">
+                    <div class="w-20 h-20 rounded-full bg-purple-100 text-purple-700 mx-auto flex items-center justify-center text-3xl font-black shadow-inner">
+                        <i class="fa-solid fa-user-tie"></i>
+                    </div>
+                    <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-extrabold uppercase tracking-wide">
+                        Liderança Mensal
+                    </span>
+                    <h2 class="text-3xl font-black text-slate-800" id="anciaoCardName">LUIZINHO</h2>
+                    <p class="text-sm text-slate-500">Ancião Geral Responsável pelo Mês de Outubro de 2026</p>
+                </div>
+
+                <div class="mt-8 border-t border-slate-100 pt-6 space-y-4">
+                    <h4 class="font-bold text-slate-800 text-sm uppercase tracking-wide text-center">Atribuições do Ancião do Mês:</h4>
+                    <ul class="text-xs sm:text-sm text-slate-600 space-y-2 max-w-md mx-auto list-disc list-inside">
+                        <li>Supervisionar o andamento de todos os cultos de Quarta, Sábado e Domingo.</li>
+                        <li>Acompanhar pregadores e assegurar a pontualidade da programação.</li>
+                        <li>Coordenar os diáconos e diaconisas para apoio nas cerimônias.</li>
+                        <li>Garantir a assistência espiritual aos membros e visitantes.</li>
+                    </ul>
+
+                    <div class="pt-4 text-center">
+                        <button onclick="openEditAnciaoModal()" class="bg-purple-700 hover:bg-purple-600 text-white font-bold text-xs py-2.5 px-5 rounded-xl shadow transition inline-flex items-center gap-2">
+                            <i class="fa-solid fa-pen-to-square"></i> Alterar Ancião ou Comunicação
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- EDIT SCHEDULE MODAL -->
+    <div id="scheduleModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-200">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white p-5 rounded-t-2xl flex justify-between items-center sticky top-0 z-10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center font-bold text-white">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-lg" id="modalTitle">Editar Escala do Dia</h3>
+                        <p class="text-xs text-emerald-400 font-medium" id="modalSubTitle">03/10/2026 - Sábado</p>
+                    </div>
+                </div>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-white text-xl font-bold p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Form Body -->
+            <form id="scheduleForm" onsubmit="handleSaveSchedule(event)" class="p-6 space-y-4 text-xs sm:text-sm">
+                <input type="hidden" id="modalScheduleId">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Data da Escala</label>
+                        <input type="date" id="modalInputDate" readonly class="w-full bg-slate-100 border border-slate-300 rounded-lg p-2.5 font-semibold text-slate-700 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">Tipo de Culto / Dia</label>
+                        <select id="modalInputServiceType" required class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-semibold text-slate-800 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="Sábado - Culto Divino">Sábado - Culto Divino</option>
+                            <option value="Sábado - Escola Sabatina">Sábado - Escola Sabatina</option>
+                            <option value="Quarta-feira - Culto de Oração">Quarta-feira - Culto de Oração</option>
+                            <option value="Domingo - Culto Evangelístico">Domingo - Culto Evangelístico</option>
+                        </select>
+                    </div>
+                </div>
+
+                <hr class="border-slate-200 my-2">
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-book-bible text-amber-600 mr-1"></i> Pregador (Sermão)
+                        </label>
+                        <input type="text" id="modalInputSermao" placeholder="Ex: PR FELIPE" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-graduation-cap text-emerald-600 mr-1"></i> Escola Sabatina
+                        </label>
+                        <input type="text" id="modalInputES" placeholder="Ex: Direção ES" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-user-shield text-purple-600 mr-1"></i> Diáconos
+                        </label>
+                        <input type="text" id="modalInputDiaconos" placeholder="Ex: ELIZETE-ZUMIRA" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-user-gear text-purple-600 mr-1"></i> Diaconisas
+                        </label>
+                        <input type="text" id="modalInputDiaconisas" placeholder="Ex: ELIZETE-ZUMIRA" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-sliders text-blue-600 mr-1"></i> Sonoplastia & Live
+                        </label>
+                        <input type="text" id="modalInputSonoplastia" placeholder="Ex: Mídia / Som" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-handshake text-rose-600 mr-1"></i> Recepção
+                        </label>
+                        <input type="text" id="modalInputRecepcao" placeholder="Ex: Equipe Recepção" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block font-bold text-slate-700 mb-1">
+                            <i class="fa-solid fa-music text-teal-600 mr-1"></i> Música & Adoração Infantil
+                        </label>
+                        <input type="text" id="modalInputMusica" placeholder="Ex: Grupo Louvor / Histórias Infantis" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Status da Confirmação</label>
+                    <select id="modalInputStatus" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-bold focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="Confirmado" class="text-emerald-600 font-bold">🟢 Confirmado</option>
+                        <option value="Pendente" class="text-amber-500 font-bold">🟡 Pendente</option>
+                        <option value="Ausente" class="text-rose-600 font-bold">🔴 Ausente / Troca Solicitada</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons Footer -->
+                <div class="pt-4 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex gap-2">
+                        <button type="button" onclick="duplicateScheduleToNextWeek()" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold py-2 px-3 rounded-lg border border-indigo-200 transition text-xs flex items-center gap-1.5" title="Duplicar esta escala para o mesmo dia da semana seguinte">
+                            <i class="fa-solid fa-copy"></i> Duplicar p/ Próx. Semana
+                        </button>
+                        <button type="button" onclick="shareCurrentModalWhatsApp()" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold py-2 px-3 rounded-lg border border-emerald-200 transition text-xs flex items-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-emerald-600 text-base"></i> Whats
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" onclick="closeModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg transition text-xs">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-5 rounded-lg shadow transition text-xs flex items-center gap-1.5">
+                            <i class="fa-solid fa-floppy-disk"></i> Salvar Alterações
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- EDIT ANCIAO / COMUNICACAO MODAL -->
+    <div id="anciaoModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-4 border border-slate-200">
+            <h3 class="font-bold text-lg text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-user-tie text-purple-600"></i> Liderança do Mês
+            </h3>
+            
+            <div class="space-y-3 text-xs sm:text-sm">
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Nome do Ancião do Mês</label>
+                    <input type="text" id="inputAnciaoName" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-bold text-slate-800">
+                </div>
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Equipe de Comunicação</label>
+                    <input type="text" id="inputComunicacaoName" class="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-medium text-slate-800">
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeAnciaoModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold py-2 px-4 rounded-lg text-xs">Cancelar</button>
+                <button onclick="saveAnciaoInfo()" class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-4 rounded-lg text-xs shadow">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION CONTAINER -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 no-print"></div>
+
+
+    <script>
+        // ================= INITIAL DATA STORE & STORAGE KEY =================
+        const LOCAL_STORAGE_KEY = "escala_digital_igreja_oct_2026_v2";
+
+        // Pre-loaded schedule for October 2026 based on exact user specification
+        const DEFAULT_DATA = {
+            month: "OUTUBRO DE 2026",
+            anciaoMes: "LUIZINHO",
+            comunicacao: "Equipe Mídia & Som",
+            schedules: [
+                {
+                    id: "2026-10-03",
+                    date: "2026-10-03",
+                    dayOfWeek: "Sábado",
+                    serviceType: "Sábado - Culto Divino",
+                    sermao: "SAP",
+                    escolaSabatina: "Equipe ES 1",
+                    diaconos: "ELIZETE-ZUMIRA",
+                    diaconisas: "ELIZETE-ZUMIRA",
+                    sonoplastia: "Som & Live",
+                    recepcao: "Grupo 1",
+                    musica: "Grupo Adoração",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-04",
+                    date: "2026-10-04",
+                    dayOfWeek: "Domingo",
+                    serviceType: "Domingo - Culto Evangelístico",
+                    sermao: "VANDERLEI",
+                    escolaSabatina: "-",
+                    diaconos: "Escala Domingo",
+                    diaconisas: "Escala Domingo",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Grupo 2",
+                    musica: "Louvor Especial",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-07",
+                    date: "2026-10-07",
+                    dayOfWeek: "Quarta",
+                    serviceType: "Quarta-feira - Culto de Oração",
+                    sermao: "LUCILEIDE",
+                    escolaSabatina: "-",
+                    diaconos: "Diáconos Quarta",
+                    diaconisas: "Diaconisas Quarta",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Recepção Quarta",
+                    musica: "Hinos de Oração",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-10",
+                    date: "2026-10-10",
+                    dayOfWeek: "Sábado",
+                    serviceType: "Sábado - Culto Divino",
+                    sermao: "RAFAEL",
+                    escolaSabatina: "Equipe ES 2",
+                    diaconos: "ROSEY-JACIARA",
+                    diaconisas: "ROSEY-JACIARA",
+                    sonoplastia: "Som & Live",
+                    recepcao: "Grupo 2",
+                    musica: "Coral & Grupo",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-11",
+                    date: "2026-10-11",
+                    dayOfWeek: "Domingo",
+                    serviceType: "Domingo - Culto Evangelístico",
+                    sermao: "NATANAEL",
+                    escolaSabatina: "-",
+                    diaconos: "Escala Domingo",
+                    diaconisas: "Escala Domingo",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Grupo 1",
+                    musica: "Louvor Jovem",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-14",
+                    date: "2026-10-14",
+                    dayOfWeek: "Quarta",
+                    serviceType: "Quarta-feira - Culto de Oração",
+                    sermao: "DAVID",
+                    escolaSabatina: "-",
+                    diaconos: "Diáconos Quarta",
+                    diaconisas: "Diaconisas Quarta",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Recepção Quarta",
+                    musica: "Vocal Oração",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-17",
+                    date: "2026-10-17",
+                    dayOfWeek: "Sábado",
+                    serviceType: "Sábado - Culto Divino",
+                    sermao: "PR FELIPE",
+                    escolaSabatina: "Equipe ES 3",
+                    diaconos: "INÊS-SALETE",
+                    diaconisas: "INÊS-SALETE",
+                    sonoplastia: "Som & Live",
+                    recepcao: "Grupo 3",
+                    musica: "Ministério de Louvor",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-18",
+                    date: "2026-10-18",
+                    dayOfWeek: "Domingo",
+                    serviceType: "Domingo - Culto Evangelístico",
+                    sermao: "KELFYSON",
+                    escolaSabatina: "-",
+                    diaconos: "Escala Domingo",
+                    diaconisas: "Escala Domingo",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Grupo 2",
+                    musica: "Solo Especial",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-21",
+                    date: "2026-10-21",
+                    dayOfWeek: "Quarta",
+                    serviceType: "Quarta-feira - Culto de Oração",
+                    sermao: "CIRÇA",
+                    escolaSabatina: "-",
+                    diaconos: "Diáconos Quarta",
+                    diaconisas: "Diaconisas Quarta",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Recepção Quarta",
+                    musica: "Hinos Clássicos",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-24",
+                    date: "2026-10-24",
+                    dayOfWeek: "Sábado",
+                    serviceType: "Sábado - Culto Divino",
+                    sermao: "ANDRÉ",
+                    escolaSabatina: "Equipe ES 4",
+                    diaconos: "MANUELE-BRUNA",
+                    diaconisas: "MANUELE-BRUNA",
+                    sonoplastia: "Som & Live",
+                    recepcao: "Grupo 4",
+                    musica: "Conjunto Musical",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-25",
+                    date: "2026-10-25",
+                    dayOfWeek: "Domingo",
+                    serviceType: "Domingo - Culto Evangelístico",
+                    sermao: "PR FELIPE",
+                    escolaSabatina: "-",
+                    diaconos: "Escala Domingo",
+                    diaconisas: "Escala Domingo",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Grupo 3",
+                    musica: "Adoração Geral",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-28",
+                    date: "2026-10-28",
+                    dayOfWeek: "Quarta",
+                    serviceType: "Quarta-feira - Culto de Oração",
+                    sermao: "M MULHER",
+                    escolaSabatina: "-",
+                    diaconos: "Diáconos Quarta",
+                    diaconisas: "Diaconisas Quarta",
+                    sonoplastia: "Equipe Som",
+                    recepcao: "Recepção Quarta",
+                    musica: "Ministério Mulheres",
+                    status: "Confirmado"
+                },
+                {
+                    id: "2026-10-31",
+                    date: "2026-10-31",
+                    dayOfWeek: "Sábado",
+                    serviceType: "Sábado - Culto Divino",
+                    sermao: "REINALDO",
+                    escolaSabatina: "Equipe ES 5",
+                    diaconos: "ANTÔNIA-LEILA",
+                    diaconisas: "ANTÔNIA-LEILA",
+                    sonoplastia: "Som & Live",
+                    recepcao: "Grupo 1",
+                    musica: "Louvor Infantil e Geral",
+                    status: "Confirmado"
+                }
+            ]
+        };
+
+        let appData = { ...DEFAULT_DATA };
+
+        function loadAppData() {
+            try {
+                const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (stored) {
+                    appData = JSON.parse(stored);
+                } else {
+                    saveAppData();
+                }
+            } catch (e) {
+                console.error("Erro ao carregar do localStorage", e);
+                appData = { ...DEFAULT_DATA };
+            }
+            updateHeaderInfo();
+        }
+
+        function saveAppData() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(appData));
+            } catch (e) {
+                showToast("Erro ao salvar dados localmente", "error");
+            }
+            updateHeaderInfo();
+            renderCurrentView();
+        }
+
+        function restoreDefaultData() {
+            if (window.confirm("Deseja restaurar a escala original de Outubro de 2026? Suas alterações não salvas serão sobrescritas.")) {
+                appData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+                saveAppData();
+                showToast("Escala de Outubro/2026 restaurada com sucesso!", "success");
+            }
+        }
+
+        function exportBackupJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `escala_igreja_outubro_2026.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Backup JSON exportado!", "success");
+        }
+
+        function importBackupJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    if (parsed && parsed.schedules) {
+                        appData = parsed;
+                        saveAppData();
+                        showToast("Backup importado com sucesso!", "success");
+                    } else {
+                        showToast("Arquivo JSON inválido para escala.", "error");
+                    }
+                } catch (err) {
+                    showToast("Erro ao ler o arquivo JSON.", "error");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function updateHeaderInfo() {
+            document.getElementById('headerMonthTitle').textContent = `Mês: ${appData.month || 'OUTUBRO DE 2026'}`;
+            document.getElementById('headerAnciaoName').textContent = appData.anciaoMes || 'LUIZINHO';
+            document.getElementById('dashAnciaoName').textContent = appData.anciaoMes || 'LUIZINHO';
+            document.getElementById('anciaoCardName').textContent = appData.anciaoMes || 'LUIZINHO';
+            document.getElementById('headerComunicacaoName').textContent = appData.comunicacao || 'Equipe Mídia & Som';
+        }
+
+        let activeTab = 'dashboard';
+
+        function switchTab(tabId) {
+            activeTab = tabId;
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-emerald-600', 'text-white');
+                btn.classList.add('text-slate-300', 'hover:bg-slate-800');
+            });
+
+            const currentBtn = document.getElementById(`tab-${tabId}`);
+            if (currentBtn) {
+                currentBtn.classList.add('active', 'bg-emerald-600', 'text-white');
+                currentBtn.classList.remove('text-slate-300', 'hover:bg-slate-800');
+            }
+
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            const currentContent = document.getElementById(`view-${tabId}`);
+            if (currentContent) {
+                currentContent.classList.remove('hidden');
+            }
+
+            renderCurrentView();
+        }
+
+        function renderCurrentView() {
+            if (activeTab === 'dashboard') renderDashboard();
+            else if (activeTab === 'sheet') renderSheetView();
+            else if (activeTab === 'calendar') renderCalendarView();
+            else if (activeTab.startsWith('dept-')) renderDeptView(activeTab);
+        }
+
+        function renderDashboard() {
+            const schedules = appData.schedules || [];
+            
+            // Stats calculation
+            const total = schedules.length;
+            const confirmadas = schedules.filter(s => s.status === 'Confirmado').length;
+            const pendentes = schedules.filter(s => s.status === 'Pendente').length;
+            const percent = total > 0 ? Math.round((confirmadas / total) * 100) : 0;
+
+            document.getElementById('statTotalCultos').textContent = total;
+            document.getElementById('statConfirmadas').textContent = confirmadas;
+            document.getElementById('statConfirmadasPercent').textContent = `${percent}% das escalas`;
+            document.getElementById('statPendentes').textContent = pendentes;
+
+            // Highlight next upcoming service
+            const sorted = [...schedules].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const next = sorted[0];
+
+            if (next) {
+                const dateParts = next.date.split('-');
+                const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
+                
+                document.getElementById('dashNextDateFull').textContent = formattedDate;
+                document.getElementById('dashNextDayTitle').textContent = `${next.dayOfWeek} - ${next.serviceType.split('-')[1] || next.serviceType}`;
+                document.getElementById('dashNextDateText').textContent = `${dateParts[2]} de Outubro de ${dateParts[0]}`;
+
+                document.getElementById('dashNextDetails').innerHTML = `
+                    <div class="flex justify-between border-b border-slate-700/50 pb-1.5">
+                        <span class="text-slate-400"><i class="fa-solid fa-book-bible text-amber-400 mr-1"></i> Sermão:</span>
+                        <span class="font-bold text-emerald-300">${next.sermao || '-'}</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-1.5">
+                        <span class="text-slate-400"><i class="fa-solid fa-user-shield text-purple-400 mr-1"></i> Diáconos:</span>
+                        <span class="font-semibold text-slate-100">${next.diaconos || '-'}</span>
+                    </div>
+                    <div class="flex justify-between border-b border-slate-700/50 pb-1.5">
+                        <span class="text-slate-400"><i class="fa-solid fa-user-gear text-purple-400 mr-1"></i> Diaconisas:</span>
+                        <span class="font-semibold text-slate-100">${next.diaconisas || '-'}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-slate-400"><i class="fa-solid fa-sliders text-blue-400 mr-1"></i> Sonoplastia:</span>
+                        <span class="font-semibold text-slate-100">${next.sonoplastia || '-'}</span>
+                    </div>
+                `;
+
+                document.getElementById('dashNextEditBtn').onclick = () => openEditModal(next.id);
+                document.getElementById('dashNextShareBtn').onclick = () => shareWhatsApp(next.id);
+            }
+
+            // Populate summary table
+            const tbody = document.getElementById('dashSummaryTableBody');
+            tbody.innerHTML = '';
+
+            sorted.forEach(s => {
+                const parts = s.date.split('-');
+                const dayNum = parts[2];
+
+                let statusBadge = '';
+                if (s.status === 'Confirmado') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">Confirmado</span>`;
+                } else if (s.status === 'Pendente') {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">Pendente</span>`;
+                } else {
+                    statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">Ausente</span>`;
+                }
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50 transition';
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-semibold text-slate-800">
+                        <div class="font-bold text-slate-900">${dayNum}/10/26</div>
+                        <div class="text-[11px] text-slate-500">${s.dayOfWeek}</div>
+                    </td>
+                    <td class="py-3 px-3">
+                        <div class="font-bold text-amber-700">${s.sermao || '-'}</div>
+                        <div class="text-[11px] text-slate-500">${s.serviceType}</div>
+                    </td>
+                    <td class="py-3 px-3 hidden sm:table-cell text-slate-600">
+                        <div><strong class="text-slate-700">D:</strong> ${s.diaconos || '-'}</div>
+                        <div class="text-[11px]"><strong class="text-slate-700">Dx:</strong> ${s.diaconisas || '-'}</div>
+                    </td>
+                    <td class="py-3 px-3 text-center">${statusBadge}</td>
+                    <td class="py-3 px-3 text-right space-x-1">
+                        <button onclick="openEditModal('${s.id}')" class="p-1.5 text-slate-600 hover:text-emerald-600 transition" title="Editar">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button onclick="shareWhatsApp('${s.id}')" class="p-1.5 text-emerald-600 hover:text-emerald-700 transition" title="WhatsApp">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSheetView() {
+            const tbody = document.getElementById('matrixTableBody');
+            tbody.innerHTML = '';
+
+            const schedules = appData.schedules || [];
+
+            // Group dates into week blocks (Oct 2026 weeks)
+            // Weeks: Week 1 (Oct 1-4), Week 2 (Oct 5-11), Week 3 (Oct 12-18), Week 4 (Oct 19-25), Week 5 (Oct 26-31)
+            const weeks = [
+                { title: 'SEMANA 1', dom: '2026-10-04', qua: null, sat: '2026-10-03' },
+                { title: 'SEMANA 2', dom: '2026-10-11', qua: '2026-10-07', sat: '2026-10-10' },
+                { title: 'SEMANA 3', dom: '2026-10-18', qua: '2026-10-14', sat: '2026-10-17' },
+                { title: 'SEMANA 4', dom: '2026-10-25', qua: '2026-10-21', sat: '2026-10-24' },
+                { title: 'SEMANA 5', dom: null, qua: '2026-10-28', sat: '2026-10-31' }
+            ];
+
+            const findSched = (dateStr) => schedules.find(s => s.date === dateStr);
+
+            weeks.forEach(w => {
+                const domS = findSched(w.dom);
+                const quaS = findSched(w.qua);
+                const satS = findSched(w.sat);
+
+                // Week Section Header Row
+                const headerRow = document.createElement('tr');
+                headerRow.className = 'bg-slate-800 text-white font-bold text-xs uppercase tracking-wider';
+                headerRow.innerHTML = `
+                    <td class="p-2 border-r border-slate-700 text-emerald-400 font-black">${w.title}</td>
+                    <td class="p-2 border-r border-slate-700 text-center">${w.dom ? `DOM ${w.dom.split('-')[2]}/10` : '-'}</td>
+                    <td class="p-2 border-r border-slate-700 text-center">${w.qua ? `QUA ${w.qua.split('-')[2]}/10` : '-'}</td>
+                    <td class="p-2 border-r border-slate-700 text-center">${w.sat ? `SÁB ES ${w.sat.split('-')[2]}/10` : '-'}</td>
+                    <td class="p-2 text-center">${w.sat ? `SÁB CULTO ${w.sat.split('-')[2]}/10` : '-'}</td>
+                `;
+                tbody.appendChild(headerRow);
+
+                // Roles rows: Pregador, Escola Sabatina, Diáconos, Diaconisas, Sonoplastia, Recepção
+                const roles = [
+                    { label: 'Sermão / Pregador', icon: 'fa-book-bible text-amber-600', field: 'sermao' },
+                    { label: 'Escola Sabatina', icon: 'fa-graduation-cap text-emerald-600', field: 'escolaSabatina' },
+                    { label: 'Diáconos', icon: 'fa-user-shield text-purple-600', field: 'diaconos' },
+                    { label: 'Diaconisas', icon: 'fa-user-gear text-purple-600', field: 'diaconisas' },
+                    { label: 'Sonoplastia & Live', icon: 'fa-sliders text-blue-600', field: 'sonoplastia' },
+                    { label: 'Recepção', icon: 'fa-handshake text-rose-600', field: 'recepcao' }
+                ];
+
+                roles.forEach(r => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50 text-slate-800 text-xs font-medium';
+
+                    const domVal = domS ? (domS[r.field] || '-') : '-';
+                    const quaVal = quaS ? (quaS[r.field] || '-') : '-';
+                    
+                    // For Saturday: ES uses ES field or default, Culto uses field
+                    let satEsVal = '-';
+                    let satCultoVal = '-';
+                    if (satS) {
+                        satEsVal = r.field === 'sermao' ? (satS.escolaSabatina || 'Estudo ES') : (satS[r.field] || '-');
+                        satCultoVal = satS[r.field] || '-';
+                    }
+
+                    row.innerHTML = `
+                        <td class="p-2.5 border-r border-slate-300 font-bold bg-slate-50 flex items-center gap-1.5">
+                            <i class="fa-solid ${r.icon} text-xs"></i> ${r.label}
+                        </td>
+                        <td class="p-2.5 border-r border-slate-200 text-center ${domS ? 'cursor-pointer hover:bg-amber-50' : ''}" onclick="${domS ? `openEditModal('${domS.id}')` : ''}">${domVal}</td>
+                        <td class="p-2.5 border-r border-slate-200 text-center ${quaS ? 'cursor-pointer hover:bg-blue-50' : ''}" onclick="${quaS ? `openEditModal('${quaS.id}')` : ''}">${quaVal}</td>
+                        <td class="p-2.5 border-r border-slate-200 text-center ${satS ? 'cursor-pointer hover:bg-emerald-50' : ''}" onclick="${satS ? `openEditModal('${satS.id}')` : ''}">${satEsVal}</td>
+                        <td class="p-2.5 text-center ${satS ? 'cursor-pointer hover:bg-purple-50' : ''}" onclick="${satS ? `openEditModal('${satS.id}')` : ''}">${satCultoVal}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            });
+        }
+
+        function renderCalendarView() {
+            const grid = document.getElementById('calendarDaysGrid');
+            grid.innerHTML = '';
+
+            // October 2026 starts on Thursday (Oct 1)
+            // Oct 1 = Thursday (Day 4 of week where Sun=0)
+            const daysInMonth = 31;
+            const startDayOfWeek = 4; // Thursday
+
+            // Empty slots before Oct 1
+            for (let i = 0; i < startDayOfWeek; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'h-24 bg-slate-50 rounded-xl border border-dashed border-slate-200 opacity-40';
+                grid.appendChild(emptyCell);
+            }
+
+            // October 1 to 31
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `2026-10-${day < 10 ? '0' + day : day}`;
+                const dateObj = new Date(2026, 9, day);
+                const dayOfWeekNum = dateObj.getDay(); // 0=Dom, 3=Qua, 6=Sáb
+
+                // Allowed days: Sunday (0), Wednesday (3), Saturday (6)
+                const isAllowedDay = (dayOfWeekNum === 0 || dayOfWeekNum === 3 || dayOfWeekNum === 6);
+
+                const sched = appData.schedules.find(s => s.date === dateStr);
+
+                const dayCard = document.createElement('div');
+
+                if (isAllowedDay) {
+                    let bgClass = "bg-white hover:border-emerald-500 shadow-sm hover:shadow-md cursor-pointer";
+                    let badgeColor = "bg-emerald-100 text-emerald-800";
+                    let dayName = dayOfWeekNum === 0 ? "Dom" : (dayOfWeekNum === 3 ? "Qua" : "Sáb");
+
+                    dayCard.className = `h-28 p-2 rounded-xl border border-slate-200 transition flex flex-col justify-between ${bgClass}`;
+                    dayCard.onclick = () => {
+                        if (sched) {
+                            openEditModal(sched.id);
+                        } else {
+                            openNewScheduleModalForDate(dateStr, dayName);
+                        }
+                    };
+
+                    dayCard.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="w-6 h-6 rounded-full bg-slate-900 text-white font-black text-xs flex items-center justify-center">${day}</span>
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${badgeColor}">${dayName}</span>
+                        </div>
+                        <div class="my-auto text-center">
+                            ${sched ? `
+                                <div class="font-bold text-xs text-amber-700 truncate" title="${sched.sermao}">${sched.sermao || 'Culto'}</div>
+                                <div class="text-[10px] text-slate-500 truncate">${sched.diaconos ? `D: ${sched.diaconos}` : ''}</div>
+                            ` : `
+                                <div class="text-[11px] text-emerald-600 font-bold"><i class="fa-solid fa-plus-circle"></i> Agendar</div>
+                            `}
+                        </div>
+                        <div class="text-[9px] text-slate-400 text-right font-semibold">
+                            ${sched ? sched.status : 'Disponível'}
+                        </div>
+                    `;
+                } else {
+                    // Disabled Day Rule
+                    dayCard.className = "h-28 p-2 rounded-xl border border-slate-200 bg-slate-100 opacity-50 cursor-not-allowed select-none";
+                    dayCard.title = "Dia bloqueado. Cultos apenas às Quartas, Sábados e Domingos.";
+                    dayCard.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <span class="w-6 h-6 rounded-full bg-slate-300 text-slate-600 font-bold text-xs flex items-center justify-center">${day}</span>
+                            <i class="fa-solid fa-lock text-slate-400 text-xs"></i>
+                        </div>
+                        <div class="my-auto text-center text-[10px] text-slate-400 font-medium">
+                            Sem Culto
+                        </div>
+                    `;
+                }
+
+                grid.appendChild(dayCard);
+            }
+        }
+
+        function renderDeptView(tabId) {
+            const schedules = appData.schedules || [];
+            let containerId = '';
+            let renderFn = null;
+
+            if (tabId === 'dept-sermao') {
+                containerId = 'deptSermaoCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-md">${s.serviceType.split('-')[1] || s.serviceType}</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Orador / Pregador:</span>
+                            <h4 class="text-xl font-black text-amber-700">${s.sermao || 'Não Definido'}</h4>
+                        </div>
+                        <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                            <button onclick="shareWhatsApp('${s.id}')" class="text-xs font-bold text-emerald-600 hover:text-emerald-700"><i class="fa-brands fa-whatsapp"></i> Enviar</button>
+                        </div>
+                    </div>
+                `;
+            } else if (tabId === 'dept-es') {
+                containerId = 'deptEsCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-emerald-100 text-emerald-800 font-extrabold px-2 py-0.5 rounded-md">Escola Sabatina</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Direção ES:</span>
+                            <h4 class="text-lg font-bold text-emerald-800">${s.escolaSabatina || 'Não Definido'}</h4>
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                        </div>
+                    </div>
+                `;
+            } else if (tabId === 'dept-sonoplastia') {
+                containerId = 'deptSonoplastiaCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded-md">Mídia/Som</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Operador / Transmissão:</span>
+                            <h4 class="text-lg font-bold text-blue-900">${s.sonoplastia || 'Não Definido'}</h4>
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                        </div>
+                    </div>
+                `;
+            } else if (tabId === 'dept-diaconos') {
+                containerId = 'deptDiaconosCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-purple-100 text-purple-800 font-extrabold px-2 py-0.5 rounded-md">${s.serviceType.split('-')[1] || s.serviceType}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-100">
+                                <span class="text-[10px] font-bold text-purple-700 uppercase block">Diáconos:</span>
+                                <span class="font-bold text-slate-800 text-sm">${s.diaconos || '-'}</span>
+                            </div>
+                            <div class="bg-purple-50 p-2.5 rounded-xl border border-purple-100">
+                                <span class="text-[10px] font-bold text-purple-700 uppercase block">Diaconisas:</span>
+                                <span class="font-bold text-slate-800 text-sm">${s.diaconisas || '-'}</span>
+                            </div>
+                        </div>
+                        <div class="pt-1 flex justify-end">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                        </div>
+                    </div>
+                `;
+            } else if (tabId === 'dept-recepcao') {
+                containerId = 'deptRecepcaoCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-rose-100 text-rose-800 font-extrabold px-2 py-0.5 rounded-md">Recepção</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Equipe de Boas-Vindas:</span>
+                            <h4 class="text-lg font-bold text-rose-900">${s.recepcao || 'Não Definido'}</h4>
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                        </div>
+                    </div>
+                `;
+            } else if (tabId === 'dept-musica') {
+                containerId = 'deptMusicaCards';
+                renderFn = (s) => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                            <span class="font-bold text-slate-900">${s.date.split('-')[2]}/10/2026 - ${s.dayOfWeek}</span>
+                            <span class="text-xs bg-teal-100 text-teal-800 font-extrabold px-2 py-0.5 rounded-md">Música / Infantil</span>
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-xs text-slate-400 uppercase font-bold">Grupo / Adoração:</span>
+                            <h4 class="text-lg font-bold text-teal-900">${s.musica || 'Não Definido'}</h4>
+                        </div>
+                        <div class="pt-2 flex justify-end">
+                            <button onclick="openEditModal('${s.id}')" class="text-xs font-bold text-slate-600 hover:text-emerald-600">Editar</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            container.innerHTML = '';
+            schedules.forEach(s => {
+                container.innerHTML += renderFn(s);
+            });
+        }
+
+        function openEditModal(scheduleId) {
+            const sched = appData.schedules.find(s => s.id === scheduleId);
+            if (!sched) return;
+
+            document.getElementById('modalScheduleId').value = sched.id;
+            document.getElementById('modalInputDate').value = sched.date;
+            document.getElementById('modalInputServiceType').value = sched.serviceType || 'Sábado - Culto Divino';
+            document.getElementById('modalInputSermao').value = sched.sermao || '';
+            document.getElementById('modalInputES').value = sched.escolaSabatina || '';
+            document.getElementById('modalInputDiaconos').value = sched.diaconos || '';
+            document.getElementById('modalInputDiaconisas').value = sched.diaconisas || '';
+            document.getElementById('modalInputSonoplastia').value = sched.sonoplastia || '';
+            document.getElementById('modalInputRecepcao').value = sched.recepcao || '';
+            document.getElementById('modalInputMusica').value = sched.musica || '';
+            document.getElementById('modalInputStatus').value = sched.status || 'Confirmado';
+
+            const parts = sched.date.split('-');
+            document.getElementById('modalTitle').textContent = `Editar Escala de ${parts[2]}/${parts[1]}/${parts[0]}`;
+            document.getElementById('modalSubTitle').textContent = `${sched.dayOfWeek} • ${sched.serviceType}`;
+
+            document.getElementById('scheduleModal').classList.remove('hidden');
+        }
+
+        function openNewScheduleModalForDate(dateStr, dayName) {
+            const newId = `sched-${dateStr}`;
+            document.getElementById('modalScheduleId').value = newId;
+            document.getElementById('modalInputDate').value = dateStr;
+            document.getElementById('modalInputServiceType').value = dayName === 'Sáb' ? 'Sábado - Culto Divino' : (dayName === 'Qua' ? 'Quarta-feira - Culto de Oração' : 'Domingo - Culto Evangelístico');
+            document.getElementById('modalInputSermao').value = '';
+            document.getElementById('modalInputES').value = '';
+            document.getElementById('modalInputDiaconos').value = '';
+            document.getElementById('modalInputDiaconisas').value = '';
+            document.getElementById('modalInputSonoplastia').value = '';
+            document.getElementById('modalInputRecepcao').value = '';
+            document.getElementById('modalInputMusica').value = '';
+            document.getElementById('modalInputStatus').value = 'Confirmado';
+
+            const parts = dateStr.split('-');
+            document.getElementById('modalTitle').textContent = `Nova Escala: ${parts[2]}/${parts[1]}/${parts[0]}`;
+            document.getElementById('modalSubTitle').textContent = `${dayName} • Cadastro do Dia`;
+
+            document.getElementById('scheduleModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('scheduleModal').classList.add('hidden');
+        }
+
+        function handleSaveSchedule(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalScheduleId').value;
+            const date = document.getElementById('modalInputDate').value;
+            
+            // Check restriction: Sunday, Wednesday, Saturday only
+            const dateObj = new Date(date + 'T00:00:00');
+            const dayNum = dateObj.getDay();
+            if (dayNum !== 0 && dayNum !== 3 && dayNum !== 6) {
+                showToast("Cultos permitidos apenas às Quartas, Sábados e Domingos!", "error");
+                return;
+            }
+
+            const dayOfWeekMap = { 0: 'Domingo', 3: 'Quarta', 6: 'Sábado' };
+            const dayOfWeek = dayOfWeekMap[dayNum] || 'Sábado';
+
+            let existingIdx = appData.schedules.findIndex(s => s.id === id || s.date === date);
+
+            const updatedObj = {
+                id: id || `sched-${date}`,
+                date: date,
+                dayOfWeek: dayOfWeek,
+                serviceType: document.getElementById('modalInputServiceType').value,
+                sermao: document.getElementById('modalInputSermao').value.trim(),
+                escolaSabatina: document.getElementById('modalInputES').value.trim(),
+                diaconos: document.getElementById('modalInputDiaconos').value.trim(),
+                diaconisas: document.getElementById('modalInputDiaconisas').value.trim(),
+                sonoplastia: document.getElementById('modalInputSonoplastia').value.trim(),
+                recepcao: document.getElementById('modalInputRecepcao').value.trim(),
+                musica: document.getElementById('modalInputMusica').value.trim(),
+                status: document.getElementById('modalInputStatus').value
+            };
+
+            if (existingIdx >= 0) {
+                appData.schedules[existingIdx] = updatedObj;
+            } else {
+                appData.schedules.push(updatedObj);
+            }
+
+            saveAppData();
+            closeModal();
+            showToast("Escala salva com sucesso!", "success");
+        }
+
+        function duplicateScheduleToNextWeek() {
+            const dateStr = document.getElementById('modalInputDate').value;
+            if (!dateStr) return;
+
+            const currDate = new Date(dateStr + 'T00:00:00');
+            currDate.setDate(currDate.getDate() + 7);
+
+            const year = currDate.getFullYear();
+            const month = String(currDate.getMonth() + 1).padStart(2, '0');
+            const day = String(currDate.getDate()).padStart(2, '0');
+            const nextDateStr = `${year}-${month}-${day}`;
+
+            const dayNum = currDate.getDay();
+            const dayOfWeekMap = { 0: 'Domingo', 3: 'Quarta', 6: 'Sábado' };
+
+            const duplicatedObj = {
+                id: `sched-${nextDateStr}`,
+                date: nextDateStr,
+                dayOfWeek: dayOfWeekMap[dayNum] || 'Sábado',
+                serviceType: document.getElementById('modalInputServiceType').value,
+                sermao: document.getElementById('modalInputSermao').value.trim(),
+                escolaSabatina: document.getElementById('modalInputES').value.trim(),
+                diaconos: document.getElementById('modalInputDiaconos').value.trim(),
+                diaconisas: document.getElementById('modalInputDiaconisas').value.trim(),
+                sonoplastia: document.getElementById('modalInputSonoplastia').value.trim(),
+                recepcao: document.getElementById('modalInputRecepcao').value.trim(),
+                musica: document.getElementById('modalInputMusica').value.trim(),
+                status: 'Pendente'
+            };
+
+            let existingIdx = appData.schedules.findIndex(s => s.date === nextDateStr);
+            if (existingIdx >= 0) {
+                appData.schedules[existingIdx] = duplicatedObj;
+            } else {
+                appData.schedules.push(duplicatedObj);
+            }
+
+            saveAppData();
+            closeModal();
+            showToast(`Escala duplicada com sucesso para ${day}/${month}/${year}!`, "success");
+        }
+
+        function shareWhatsApp(scheduleId) {
+            const sched = appData.schedules.find(s => s.id === scheduleId);
+            if (!sched) return;
+
+            const parts = sched.date.split('-');
+            const formattedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+
+            const message = `📌 *ESCALA DIGITAL DA IGREJA*
+📅 *Data:* ${formattedDate} (${sched.dayOfWeek})
+⛪ *Culto:* ${sched.serviceType}
+👤 *Ancião do Mês:* ${appData.anciaoMes || 'LUIZINHO'}
+
+📖 *Sermão / Pregador:* ${sched.sermao || 'A definir'}
+🎓 *Escola Sabatina:* ${sched.escolaSabatina || '-'}
+🛡️ *Diáconos:* ${sched.diaconos || '-'}
+🌸 *Diaconisas:* ${sched.diaconisas || '-'}
+🎛️ *Sonoplastia/Live:* ${sched.sonoplastia || '-'}
+🤝 *Recepção:* ${sched.recepcao || '-'}
+🎵 *Música/Infantil:* ${sched.musica || '-'}
+-----------------------------
+Status: *${sched.status || 'Confirmado'}*`;
+
+            const encoded = encodeURIComponent(message);
+            window.open(`https://api.whatsapp.com/send?text=${encoded}`, '_blank');
+        }
+
+        function shareCurrentModalWhatsApp() {
+            const dateStr = document.getElementById('modalInputDate').value;
+            const sched = appData.schedules.find(s => s.date === dateStr);
+            if (sched) {
+                shareWhatsApp(sched.id);
+            } else {
+                showToast("Salve a escala antes de compartilhar.", "warning");
+            }
+        }
+
+        function exportToCSV() {
+            let csvContent = "data:text/csv;charset=utf-8,";
+            csvContent += `ESCALA DIGITAL - MES ${appData.month || 'OUTUBRO DE 2026'}\n`;
+            csvContent += `Anciao do Mes: ${appData.anciaoMes || 'LUIZINHO'}\n\n`;
+            csvContent += "Data;Dia;Culto;Sermao;Escola Sabatina;Diaconos;Diaconisas;Sonoplastia;Recepcao;Status\n";
+
+            appData.schedules.forEach(s => {
+                const row = [
+                    s.date,
+                    s.dayOfWeek,
+                    `"${s.serviceType}"`,
+                    `"${s.sermao}"`,
+                    `"${s.escolaSabatina}"`,
+                    `"${s.diaconos}"`,
+                    `"${s.diaconisas}"`,
+                    `"${s.sonoplastia}"`,
+                    `"${s.recepcao}"`,
+                    s.status
+                ].join(";");
+                csvContent += row + "\n";
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `escala_matriz_outubro_2026.csv`);
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            showToast("Planilha CSV gerada com sucesso!", "success");
+        }
+
+        function openEditAnciaoModal() {
+            document.getElementById('inputAnciaoName').value = appData.anciaoMes || 'LUIZINHO';
+            document.getElementById('inputComunicacaoName').value = appData.comunicacao || 'Equipe Mídia & Som';
+            document.getElementById('anciaoModal').classList.remove('hidden');
+        }
+
+        function closeAnciaoModal() {
+            document.getElementById('anciaoModal').classList.add('hidden');
+        }
+
+        function saveAnciaoInfo() {
+            appData.anciaoMes = document.getElementById('inputAnciaoName').value.trim() || 'LUIZINHO';
+            appData.comunicacao = document.getElementById('inputComunicacaoName').value.trim() || 'Equipe Mídia & Som';
+            saveAppData();
+            closeAnciaoModal();
+            showToast("Informações de liderança salvas!", "success");
+        }
+
+        function showToast(msg, type = "info") {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            let bg = "bg-slate-900 text-white";
+            let icon = "fa-info-circle text-blue-400";
+
+            if (type === "success") {
+                bg = "bg-emerald-700 text-white";
+                icon = "fa-check-circle text-emerald-200";
+            } else if (type === "error") {
+                bg = "bg-rose-700 text-white";
+                icon = "fa-exclamation-triangle text-rose-200";
+            } else if (type === "warning") {
+                bg = "bg-amber-600 text-white";
+                icon = "fa-bell text-amber-200";
+            }
+
+            toast.className = `${bg} px-4 py-3 rounded-xl shadow-lg border border-white/10 flex items-center gap-3 text-xs sm:text-sm font-semibold transition transform duration-300 translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid ${icon} text-base"></i> <span>${msg}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+
+        // Initialize application on DOM load
+        window.onload = function() {
+            loadAppData();
+            renderCurrentView();
+        };
+    </script>
+</body>
+</html>
